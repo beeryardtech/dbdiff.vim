@@ -1,0 +1,3 @@
+[submodule "python"]
+	path = python
+	url = ssh://git@github.com/beeryardtech/dbdiff.py
