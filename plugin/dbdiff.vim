@@ -39,8 +39,9 @@ call s:initVariable("g:dbdiff_config_auth_app_secret", "0dr7qtfcmu2glov")
 call s:initVariable("g:dbdiff_config_auth_auth_token", "4YBvKDqc-U0AAAAAAAE1CJOc23_Ffp6KKUeH8Pd-A20nk06TPaC_QdxhFXDERyu1")
 
 " System config
-call s:initVariable("g:dbdiff_config_system_input_disabled", 1)
 call s:initVariable("g:dbdiff_config_system_debug", 0)
+call s:initVariable("g:dbdiff_config_system_input_disabled", 1)
+call s:initVariable("g:dbdiff_config_system_buffer_type", "split")
 call s:initVariable("g:dbdiff_config_system_quit", 1)
 call s:initVariable("g:dbdiff_config_system_verbose", 0)
 
@@ -87,7 +88,7 @@ get.run(config)
 EOP
 endfunction
 command! DBDiffGetCurr call s:DBDiffGetRun("%")
-command! -nargs=1 DBDiffGet call s:DBDiffGetRun(<f-args>)
+command! -nargs=1 DBDiffGet call s:DBDiffGetRun(<f-args>
 
 
 """" Define REVS
@@ -100,13 +101,13 @@ from libs import vimutils
 from cli import revs
 
 get_config = vimutils.eval_var_keys({
-    "formatter": "json",
+    "formatter": "hashes",
     "local_file": "b:local_file",
     "output": None,
 })
 config = vimutils.build_config_with_client(get_config)
 output = revs.run(config)
-vimutils.put_to_scratch_buffer(output)
+vimutils.put_to_scratch_buffer(output, config.get("buffer_type"))
 EOP
 endfunction
 
