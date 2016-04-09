@@ -32,6 +32,7 @@ function! s:initVariable(var, value)
         return 0
 endfunction
 
+"""" Config
 " Auth config
 call s:initVariable("g:dbdiff_config_auth_app_code", "4YBvKDqc-U0AAAAAAAE1UUo5SPVijvoH43BegDlbu8PhGe-Vjsv_PIypRZo2poiB")
 call s:initVariable("g:dbdiff_config_auth_app_key", 'cr7gk84iajv0zmt')
@@ -41,10 +42,14 @@ call s:initVariable("g:dbdiff_config_auth_auth_token", "4YBvKDqc-U0AAAAAAAE1CJOc
 " System config
 call s:initVariable("g:dbdiff_config_system_debug", 0)
 call s:initVariable("g:dbdiff_config_system_input_disabled", 1)
-call s:initVariable("g:dbdiff_config_system_buffer_type", "split")
+call s:initVariable("g:dbdiff_config_system_buffer_type", "vsplit")
 call s:initVariable("g:dbdiff_config_system_quit", 1)
 call s:initVariable("g:dbdiff_config_system_verbose", 0)
 
+"""" Key Bindings
+
+
+"""" Setup Python
 " Get current dir of this file
 let s:current_dir = expand("<sfile>:p:h")
 
@@ -59,7 +64,7 @@ current_dir = vim.eval("s:current_dir")
 # Similar to way JS Files are in a web project (think bower.js)
 path = "{}/../python/src/main/python/".format(current_dir)
 sys.path.insert(0, path)
-from libs import authutils, vimutils
+from libs import authutils, configutils, vimutils
 
 try:
     config = vimutils.build_config()
@@ -69,6 +74,13 @@ try:
 except authutils.AuthInputDisabled as err:
     pass
 EOP
+
+"""" Define Install
+function! s:DBDiffInstall()
+    !virtualenv ~/.virtualenv/dbdiff
+    !source ../python/virt.sh
+endfunction
+command! DBDiffInstall call s:DBDiffInstall()
 
 """" Define GET
 function! s:DBDiffGetRun(path)
@@ -80,15 +92,15 @@ from libs import vimutils
 from cli import get
 
 get_config = vimutils.eval_var_keys({
-    "local_file": "b:local_file",
     "dest": "dbdiff.vim.cp",
+    "local_file": "b:local_file",
 })
 config = vimutils.build_config_with_client(get_config)
 get.run(config)
 EOP
 endfunction
 command! DBDiffGetCurr call s:DBDiffGetRun("%")
-command! -nargs=1 DBDiffGet call s:DBDiffGetRun(<f-args>
+command! -nargs=1 DBDiffGet call s:DBDiffGetRun(<f-args>)
 
 
 """" Define REVS
@@ -101,13 +113,13 @@ from libs import vimutils
 from cli import revs
 
 get_config = vimutils.eval_var_keys({
-    "formatter": "hashes",
+    "formatter": "menu",
     "local_file": "b:local_file",
     "output": None,
 })
 config = vimutils.build_config_with_client(get_config)
 output = revs.run(config)
-vimutils.put_to_scratch_buffer(output, config.get("buffer_type"))
+vimutils.put_to_scratch_buffer(output, onfig.get("buffer_type"))
 EOP
 endfunction
 
