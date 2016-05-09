@@ -46,8 +46,13 @@ call s:initVariable("g:dbdiff_config_system_buffer_type", "vsplit")
 call s:initVariable("g:dbdiff_config_system_quit", 1)
 call s:initVariable("g:dbdiff_config_system_verbose", 0)
 
-"""" Key Bindings
+" Key Bindings
+call s:initVariable("g:dbdiff_key_move_down", "j")
+call s:initVariable("g:dbdiff_key_move_up", "k")
 
+"""" Map the Keys
+
+nnoremap <F4> :DBDiffRevsCurr<CR>
 
 """" Setup Python
 " Get current dir of this file
@@ -119,9 +124,59 @@ get_config = vimutils.eval_var_keys({
 })
 config = vimutils.build_config_with_client(get_config)
 output = revs.run(config)
-vimutils.put_to_scratch_buffer(output, onfig.get("buffer_type"))
+vimutils.put_to_scratch_buffer(output, config.get("buffer_type"))
 EOP
 endfunction
 
 command! DBDiffRevsCurr call s:DBDiffRevsRun("%")
+command! DBDiffRevsCurrToggle call s:DBDiffRevsRun("%")
 command! -nargs=1 DBDiffRevs call s:DBDiffRevsRun(<f-args>)
+
+" Function: s:DBDiffMoveUp() {{{2
+"" Updates internal pointer when user moves up
+"Returns:
+"" 1 If successful, 0 otherwise
+function! s:DBDiffMoveUp()
+    let curr_line = getline('.')
+    call cursor(curr_line - 1)
+    python config.state_machine.move()
+endfunction
+
+" Function: s:DBDiffMoveDown() {{{2
+"" Updates internal pointer when user moves down
+"Returns:
+"" 1 If successful, 0 otherwise
+function! s:DBDiffMoveDown()
+    let curr_line = getline('.')
+    call cursor(curr_line + 1)
+    python config.state_machine.move()
+endfunction
+
+" Function: s:DBDiffCommit() {{{2
+"" Gets the selected version when the user commits to that change
+"Returns:
+"" 1 If successful, 0 otherwise
+function! s:DBDiffCommit()
+
+endfunction
+
+function! s:DBDiffMapKeysScratch()
+    exec 'nnoremap <script> <silent> <buffer> ' . g:dbdiff_key_move_down . " :call <sid>DBDiffMoveUp<CR>"
+    exec 'nnoremap <script> <silent> <buffer> ' . g:dbdiff_key_move_down . " :call <sid>DBDiffMoveDown<CR>"
+endfunction
+
+
+function! s:DBDiffSettingsScratch()"{{{
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal nobuflisted
+    setlocal nomodifiable
+    setlocal filetype=dbdiff
+    setlocal nolist
+    setlocal nonumber
+    setlocal norelativenumber
+    setlocal nowrap
+    call s:DBDiffMapKeysScratch()
+endfunction"}}}
+
